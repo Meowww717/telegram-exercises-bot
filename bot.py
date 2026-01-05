@@ -6,6 +6,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     ContextTypes,
     filters,
+    JobQueue,
 )
 from telegram import (
     Update,
@@ -147,6 +148,12 @@ def category_actions_keyboard():
 # COMMANDS
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
+
+    if context.job_queue is None:
+        await update.message.reply_text(
+            "⚠️ Reminders are temporarily unavailable."
+        )
+        return
 
     # remove old jobs
     for job in context.job_queue.get_jobs_by_name(f"morning_{chat_id}"):
@@ -316,12 +323,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # MAIN
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = (
+        ApplicationBuilder()
+        .token(TOKEN)
+        .job_queue(JobQueue())
+        .build()
+    )
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_callback))
-    app.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
+    )
 
     print("🤖 Bot is running...")
     app.run_polling()
