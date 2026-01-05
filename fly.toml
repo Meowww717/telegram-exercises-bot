@@ -1,0 +1,14 @@
+app = "telegram-exercises-bot"
+
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+  builder = "paketobuildpacks/builder:base"
+
+[processes]
+  app = "python bot.py"
+
+[mounts]
+  source = "videos_data"
+  destination = "/data"
