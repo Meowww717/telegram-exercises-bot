@@ -210,7 +210,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(
-        "💪 Choose a category to do exercises now:",
+        "🏃 Choose a category to do exercises now:",
         reply_markup=categories_keyboard(),
     )
 
@@ -260,7 +260,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "back":
         context.user_data.clear()
         await query.message.reply_text(
-            "💪 Choose a category:",
+            "🏃 Choose a category:",
             reply_markup=categories_keyboard(),
         )
         return
@@ -273,7 +273,7 @@ async def show_category(query, category: str):
     data = load_videos()
     videos = data.get(category, [])
 
-    text = f"💪 *{category.upper()}*\n\n"
+    text = f"*{CATEGORY_LABELS.get(category, category)}*\n\n"
     if not videos:
         text += "No videos yet."
     else:
