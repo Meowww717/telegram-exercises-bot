@@ -1,4 +1,5 @@
 from affirmations import EVENING_AFFIRMATIONS, MORNING_AFFIRMATIONS
+from zoneinfo import ZoneInfo
 
 from telegram.ext import (
     ApplicationBuilder,
@@ -31,6 +32,8 @@ if not TOKEN:
 
 IS_FLY = os.getenv("FLY_APP_NAME") is not None
 DATA_FILE = "/data/videos.json" if IS_FLY else "videos.json"
+LONDON_TZ = ZoneInfo("Europe/London")
+KYIV_TZ = ZoneInfo("Europe/Kyiv")
 
 CATEGORIES = [
     "neck",
@@ -190,7 +193,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # morning 08:00
     context.job_queue.run_daily(
         morning_reminder_job,
-        time=datetime.time(hour=8, minute=0),
+        time=datetime.time(hour=8, minute=0, tzinfo=LONDON_TZ),
         data={"chat_id": chat_id},
         name=f"morning_{chat_id}",
     )
@@ -198,9 +201,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # evening 21:00
     context.job_queue.run_daily(
         evening_reminder_job,
-        time=datetime.time(hour=21, minute=0),
+        time=datetime.time(hour=21, minute=0, tzinfo=LONDON_TZ),
         data={"chat_id": chat_id},
         name=f"evening_{chat_id}",
+    )
+
+    now = datetime.datetime.now(KYIV_TZ) + datetime.timedelta(minutes=4)
+
+    context.job_queue.run_once(
+        morning_reminder_job,
+        when=now,
+        data={"chat_id": chat_id},
     )
 
     await update.message.reply_text(
