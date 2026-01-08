@@ -75,9 +75,9 @@ DEFAULT_VIDEOS = {
 }
 
 
-# ---------------------------
+# --------------------------
 # REMINDERS
-# ---------------------------
+# --------------------------
 async def morning_reminder_job(context: ContextTypes.DEFAULT_TYPE):
     chat_id = context.job.data["chat_id"]
     affirmation = random.choice(MORNING_AFFIRMATIONS)
