@@ -162,12 +162,14 @@ def categories_keyboard():
     return InlineKeyboardMarkup(rows)
 
 
-def category_actions_keyboard():
+def category_actions_keyboard(category: str):
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("➕ Add video", callback_data="add"),
-                InlineKeyboardButton("🗑 Delete video", callback_data="delete"),
+                InlineKeyboardButton(
+                    "➕ Add video", callback_data=f"add:{category}"),
+                InlineKeyboardButton(
+                    "🗑 Delete video", callback_data=f"delete:{category}"),
             ],
             [InlineKeyboardButton("⬅ Back", callback_data="back")],
         ]
@@ -242,22 +244,22 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await show_category(query, category)
         return
 
-    # add video
-    if data == "add":
-        category = context.user_data.get("category")
-        if not category:
-            await query.message.reply_text("❌ Choose category first")
-            return
-
+    # add video (category comes from callback)
+    if data.startswith("add:"):
+        category = data.split(":", 1)[1]
+        context.user_data["category"] = category
         context.user_data["action"] = "add"
+
         await query.message.reply_text(
             f"📎 Send me the video link for *{category}*",
             parse_mode="Markdown",
         )
         return
 
-    # delete video (show list)
-    if data == "delete":
+    # delete video (category comes from callback)
+    if data.startswith("delete:"):
+        category = data.split(":", 1)[1]
+        context.user_data["category"] = category
         await show_delete_options(query, context)
         return
 
@@ -293,7 +295,7 @@ async def show_category(query, category: str):
 
     await query.message.reply_text(
         text,
-        reply_markup=category_actions_keyboard(),
+        reply_markup=category_actions_keyboard(category),
         parse_mode="Markdown",
     )
 
