@@ -16,6 +16,7 @@ from telegram import (
     InlineKeyboardMarkup,
 )
 
+import html
 import datetime
 import random
 import os
@@ -254,8 +255,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["action"] = "add"
 
         await query.message.reply_text(
-            f"📎 Send me the video link for *{category}*",
-            parse_mode="Markdown",
+            f"📎 Send me the video link for <b>{html.escape(category)}</b>",
+            parse_mode="HTML",
         )
         return
 
@@ -289,17 +290,19 @@ async def show_category(query, category: str):
     data = load_videos()
     videos = data.get(category, [])
 
-    text = f"*{CATEGORY_LABELS.get(category, category)}*\n\n"
+    label = html.escape(CATEGORY_LABELS.get(category, category))
+
+    text = f"<b>{label}</b>\n\n"
     if not videos:
         text += "No videos yet."
     else:
         for i, url in enumerate(videos, 1):
-            text += f"{i}. {url}\n"
+            text += f"{i}. {html.escape(url)}\n"
 
     await query.message.reply_text(
         text,
         reply_markup=category_actions_keyboard(category),
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
 
 
@@ -372,8 +375,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
 
     await update.message.reply_text(
-        f"✅ Added to *{category}*",
-        parse_mode="Markdown",
+        f"✅ Added to <b>{html.escape(category)}</b>",
+        parse_mode="HTML",
     )
 
     await update.message.reply_text(
