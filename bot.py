@@ -60,7 +60,7 @@ CATEGORY_LABELS = {
     "full_body": "🏃 Full body",
     "stretching": "🧘 Stretching",
     "face": "🙂 Face",
-    "dance": "💃🕺Dance",
+    "dance": "Dance",
 }
 
 DEFAULT_VIDEOS = {
